@@ -147,6 +147,12 @@ RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/debuggerd
 TARGET_RECOVERY_DEVICE_MODULES += strace
 RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/strace
 
+# Build the Meizu RichTap HAL and its AIDL extension against this platform.
+TARGET_RECOVERY_DEVICE_MODULES += android.hardware.vibrator.service.meizu-richtap
+TARGET_RECOVERY_DEVICE_MODULES += vendor.aac.hardware.richtap.vibrator-V1-ndk
+RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/android.hardware.vibrator.service.meizu-richtap
+RECOVERY_LIBRARY_SOURCE_FILES += $(TARGET_OUT_SHARED_LIBRARIES)/vendor.aac.hardware.richtap.vibrator-V1-ndk.so
+
 # The native-buffer graphics runtime uses the platform's matching AIDL types.
 TARGET_RECOVERY_DEVICE_MODULES += android.hardware.graphics.common-V6-ndk
 RECOVERY_LIBRARY_SOURCE_FILES += $(TARGET_OUT_SHARED_LIBRARIES)/android.hardware.graphics.common-V6-ndk.so

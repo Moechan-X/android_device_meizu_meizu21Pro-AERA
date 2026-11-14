@@ -1,0 +1,32 @@
+// SPDX-FileCopyrightText: 2026 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+
+aidl_interface {
+    name: "vendor.aac.hardware.richtap.vibrator",
+    owner: "meizu",
+    vendor_available: true,
+    local_include_dir: "aidl",
+    srcs: ["aidl/vendor/aac/hardware/richtap/vibrator/*.aidl"],
+    stability: "vintf",
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            enabled: false,
+        },
+        ndk: {
+            enabled: true,
+        },
+        rust: {
+            enabled: false,
+        },
+    },
+    frozen: true,
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+}

@@ -28,6 +28,7 @@ The tested target is the locally built PixelOS 17 firmware with its matching
 - Dynamic partitions with a 9 GiB super partition and ext4/EROFS mount entries.
 - F2FS userdata, fscrypt v2 and wrapped-key metadata encryption.
 - Installed OS properties loaded before starting Qualcomm KeyMint.
+- Meizu RichTap vibrator HAL and AAC AIDL extension built against the recovery platform.
 - Native adaptive UI for the 1368 x 3192 panel, Meizu brightness and haptics.
 - Meizu Adreno 750 graphics drivers and allocator from the local PixelOS build.
 - Recovery USB configuration for ADB, MTP, sideload and fastbootd.
@@ -77,6 +78,9 @@ The saved WLAN profile connected with WPA2-PSK and obtained a DHCP address.
 Fastbootd answered `getvar is-userspace` with `yes` and rebooted back to Recovery.
 The R3 recovery partition was read back and its SHA256 matched the image.
 
+Meizu RichTap UI vibration feedback was confirmed on the phone. Runtime tracing
+verified that AERA vibration requests reach `/dev/aac_richtap_dev` and the ICS motor.
+
 The UI currently uses software DRM scanout. The vendor graphics allocator
 requires further C++ runtime compatibility work.
 
@@ -93,6 +97,14 @@ Build and packaging conventions follow AERA's public Android 16 manifest and
 SM8650 reference device tree.
 [AERA manifest](https://github.com/AERA-Recovery/android_manifest/tree/aera-16.0)
 [AERA waffle reference](https://github.com/AERA-Recovery/android_device_oneplus_waffle-AERA/tree/5610a89a115c0aa3b1e87a6f6cdab08ce001d4eb)
+
+The vibrator service and AAC extension interface come from
+`guosasipo/android_hardware_meizu` at revision
+`d1355f82b0b209cfd2a9b24e1340b473ae38bbb6`. Their original copyright notices are
+preserved in `vibrator/`. The service is compiled with the recovery platform's
+Binder and AIDL libraries and uses the bundled Meizu AAC backend and configuration.
+[Meizu vibrator sources](https://github.com/guosasipo/android_hardware_meizu/tree/d1355f82b0b209cfd2a9b24e1340b473ae38bbb6/aidl/vibrator/richtap)
+[AAC extension interface](https://github.com/guosasipo/android_hardware_meizu/tree/d1355f82b0b209cfd2a9b24e1340b473ae38bbb6/interfaces)
 
 ## Device picture
 

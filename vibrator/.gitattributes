@@ -1,0 +1,5 @@
+*.aidl text eol=lf
+.hash text eol=lf
+*.cpp text eol=lf
+*.h text eol=lf
+*.bp text eol=lf

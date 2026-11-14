@@ -5,4 +5,46 @@
 //
 
 soong_namespace {
-}   
+}
+
+cc_prebuilt_library_shared {
+    name: "libaacvibrator-meizu-recovery",
+    stem: "libaacvibrator",
+    srcs: ["recovery/root/vendor/lib64/libaacvibrator.so"],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libutils",
+        "libc++",
+        "libc",
+        "libm",
+        "libdl",
+    ],
+    strip: {
+        none: true,
+    },
+}
+
+cc_binary {
+    name: "android.hardware.vibrator.service.meizu-richtap",
+    srcs: [
+        "vibrator/service.cpp",
+        "vibrator/AacVibrator.cpp",
+        "vibrator/RichtapVibrator.cpp",
+        "vibrator/Vibrator.cpp",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-DLOG_TAG=\"android.hardware.vibrator.service.meizu\"",
+    ],
+    shared_libs: [
+        "android.hardware.vibrator-V2-ndk",
+        "libaacvibrator-meizu-recovery",
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+        "vendor.aac.hardware.richtap.vibrator-V1-ndk",
+    ],
+}
