@@ -1,0 +1,476 @@
+diff --git a/aeraui/core/engine.cpp b/aeraui/core/engine.cpp
+index f8a85c1..6c0eebc 100644
+--- a/aeraui/core/engine.cpp
++++ b/aeraui/core/engine.cpp
+@@ -1019,6 +1019,11 @@ public:
+       pointer_.x = visible_x;
+       pointer_.y = visible_y;
+       pointer_.pressed = pressed;
++      // Input draining can consume a complete tap or drag before the next
++      // frame. Feed every overlay sample immediately so sliders and swipe
++      // unlocks receive their LVGL PRESSING events.
++      if (pointer_device_ != nullptr)
++        lv_indev_read(pointer_device_);
+       CancelEdgeSwipe();
+       CancelRecentsSwipe();
+       return;
+diff --git a/aeraui/core/runner.cpp b/aeraui/core/runner.cpp
+index 29b39c8..aaa27ef 100644
+--- a/aeraui/core/runner.cpp
++++ b/aeraui/core/runner.cpp
+@@ -352,12 +352,19 @@ bool HandleEvent(Engine& engine, InteractionBoost& performance,
+                 !hardware.power_long_press && !hardware.screenshot_chord) {
+                 const bool ambient=RecoveryLockTheme().aod;
+                 aeraScreenTimer.SetAmbientEnabled(ambient,RecoveryLockTheme().aod_brightness);
+-                if(ambient){engine.ShowLockScreen(true);engine.RunFrame();}
+-                engine.SetSuspended(!ambient);
+                 aeraScreenTimer.Blank();
+-                hardware.screen_off = true;
+-                __android_log_print(ANDROID_LOG_INFO, kLogTag,
+-                                    "display suspended by power key");
++                hardware.screen_off = aeraScreenTimer.IsScreenOff();
++                // Screen blanking can be disabled by the device configuration.
++                // Keep input active when the screen timer leaves the display on.
++                if (hardware.screen_off) {
++                    if (ambient) {
++                        engine.ShowLockScreen(true);
++                        engine.RunFrame();
++                    }
++                    engine.SetSuspended(!ambient);
++                    __android_log_print(ANDROID_LOG_INFO, kLogTag,
++                                        "display suspended by power key");
++                }
+             }
+             hardware.power_down = false;
+             hardware.power_long_press = false;
+diff --git a/aeraui/platform/aera_screen_timer.cpp b/aeraui/platform/aera_screen_timer.cpp
+index 7d5e3fb..d46e87c 100644
+--- a/aeraui/platform/aera_screen_timer.cpp
++++ b/aeraui/platform/aera_screen_timer.cpp
+@@ -14,7 +14,6 @@ AeraScreenTimer aeraScreenTimer;
+ AeraScreenTimer::AeraScreenTimer() {
+   pthread_mutex_init(&mutex_, nullptr);
+   ResetClock();
+-  original_brightness_ = CurrentBrightness();
+ }
+ 
+ void AeraScreenTimer::ResetClock() {
+diff --git a/aeraui/platform/aera_ui_host.cpp b/aeraui/platform/aera_ui_host.cpp
+index 1ee7e54..040a135 100644
+--- a/aeraui/platform/aera_ui_host.cpp
++++ b/aeraui/platform/aera_ui_host.cpp
+@@ -53,6 +53,7 @@ extern "C" int aeraui_is_active() { return 1; }
+ 
+ extern "C" int gui_init() {
+   gr_init();
++  DataManager::InitializeBrightness();
+   TWFunc::Set_Brightness(DataManager::GetStrValue("tw_brightness"));
+ #ifdef TW_SCREEN_BLANK_ON_BOOT
+   aeraScreenTimer.Blank();
+diff --git a/data.cpp b/data.cpp
+index df87963..a135602 100644
+--- a/data.cpp
++++ b/data.cpp
+@@ -744,6 +744,110 @@ void DataManager::SetBackupFolder()
+     }
+ }
+ 
++void DataManager::InitializeBrightness()
++{
++  pthread_mutex_lock(&m_valuesLock);
++  if (mData.GetIntValue("tw_has_brightnesss_file") &&
++      TWFunc::Path_Exists(mData.GetStrValue("tw_brightness_file"))) {
++    pthread_mutex_unlock(&m_valuesLock);
++    return;
++  }
++  // Brightness handling
++  string findbright;
++#ifdef TW_BRIGHTNESS_PATH
++  findbright = EXPAND(TW_BRIGHTNESS_PATH);
++  LOGINFO("TW_BRIGHTNESS_PATH := %s\n", findbright.c_str());
++  if (!TWFunc::Path_Exists(findbright))
++    {
++      LOGINFO("Specified brightness file '%s' not found.\n",
++	      findbright.c_str());
++      findbright = "";
++    }
++#endif
++  if (findbright.empty())
++    {
++      // Attempt to locate the brightness file
++      findbright = Find_File::Find("brightness", "/sys/class/backlight");
++      if (findbright.empty())
++	findbright =
++	  Find_File::Find("brightness", "/sys/class/leds/lcd-backlight");
++    }
++  if (findbright.empty())
++    {
++      LOGINFO("Unable to locate brightness file\n");
++      mData.SetValue("tw_has_brightnesss_file", "0");
++    }
++  else
++    {
++      LOGINFO("Found brightness file at '%s'\n", findbright.c_str());
++      mData.SetValue("tw_has_brightnesss_file", "1");
++      mData.SetValue("tw_brightness_file", findbright);
++      string maxBrightness;
++#ifdef TW_MAX_BRIGHTNESS
++      ostringstream maxVal;
++      maxVal << TW_MAX_BRIGHTNESS;
++      maxBrightness = maxVal.str();
++#else
++      // Attempt to locate the max_brightness file
++      string maxbrightpath =
++	findbright.insert(findbright.rfind('/') + 1, "max_");
++      if (TWFunc::Path_Exists(maxbrightpath))
++	{
++	  ifstream maxVal(maxbrightpath.c_str());
++	  if (maxVal >> maxBrightness)
++	    {
++	      LOGINFO("Got max brightness %s from '%s'\n",
++		      maxBrightness.c_str(), maxbrightpath.c_str());
++	    }
++	  else
++	    {
++	      // Something went wrong, set that to indicate error
++	      maxBrightness = "-1";
++	    }
++	}
++      if (atoi(maxBrightness.c_str()) <= 0)
++	{
++	  // Fallback into default
++	  ostringstream maxVal;
++	  maxVal << 255;
++	  maxBrightness = maxVal.str();
++	}
++#endif
++      mData.SetValue("tw_brightness_max", maxBrightness);
++#ifdef TW_SECONDARY_BRIGHTNESS_PATH
++      string secondfindbright = EXPAND(TW_SECONDARY_BRIGHTNESS_PATH);
++      if (secondfindbright != "" && TWFunc::Path_Exists(secondfindbright))
++	{
++	  LOGINFO("Will use a second brightness file at '%s'\n",
++		  secondfindbright.c_str());
++	  mData.SetValue("tw_secondary_brightness_file", secondfindbright);
++	}
++      else
++	{
++	  LOGINFO("Specified secondary brightness file '%s' not found.\n",
++		  secondfindbright.c_str());
++	}
++#endif
++#ifdef TW_DEFAULT_BRIGHTNESS
++      const string defaultBrightness = to_string(TW_DEFAULT_BRIGHTNESS);
++#else
++      const string defaultBrightness = maxBrightness;
++#endif
++      string currentBrightness;
++      if (mPersist.GetValue("tw_brightness", currentBrightness) != 0) {
++        currentBrightness = defaultBrightness;
++        mPersist.SetValue("tw_brightness", currentBrightness);
++      }
++      string currentPercent;
++      if (mPersist.GetValue("tw_brightness_pct", currentPercent) != 0)
++        mPersist.SetValue("tw_brightness_pct",
++                         atoi(currentBrightness.c_str()) * 100 / atoi(maxBrightness.c_str()));
++      TWFunc::Set_Brightness(currentBrightness);
++    }
++
++  pthread_mutex_unlock(&m_valuesLock);
++}
++
+ void DataManager::SetDefaultValues()
+ {
+   string str, path;
+@@ -1382,101 +1486,7 @@ void DataManager::SetDefaultValues()
+   	mConst.SetValue(TW_VIRTUAL_AB_ENABLED, "0");
+   }
+ 
+-  // Brightness handling
+-  string findbright;
+-#ifdef TW_BRIGHTNESS_PATH
+-  findbright = EXPAND(TW_BRIGHTNESS_PATH);
+-  LOGINFO("TW_BRIGHTNESS_PATH := %s\n", findbright.c_str());
+-  if (!TWFunc::Path_Exists(findbright))
+-    {
+-      LOGINFO("Specified brightness file '%s' not found.\n",
+-	      findbright.c_str());
+-      findbright = "";
+-    }
+-#endif
+-  if (findbright.empty())
+-    {
+-      // Attempt to locate the brightness file
+-      findbright = Find_File::Find("brightness", "/sys/class/backlight");
+-      if (findbright.empty())
+-	findbright =
+-	  Find_File::Find("brightness", "/sys/class/leds/lcd-backlight");
+-    }
+-  if (findbright.empty())
+-    {
+-      LOGINFO("Unable to locate brightness file\n");
+-      mConst.SetValue("tw_has_brightnesss_file", "0");
+-    }
+-  else
+-    {
+-      LOGINFO("Found brightness file at '%s'\n", findbright.c_str());
+-      mConst.SetValue("tw_has_brightnesss_file", "1");
+-      mConst.SetValue("tw_brightness_file", findbright);
+-      string maxBrightness;
+-#ifdef TW_MAX_BRIGHTNESS
+-      ostringstream maxVal;
+-      maxVal << TW_MAX_BRIGHTNESS;
+-      maxBrightness = maxVal.str();
+-#else
+-      // Attempt to locate the max_brightness file
+-      string maxbrightpath =
+-	findbright.insert(findbright.rfind('/') + 1, "max_");
+-      if (TWFunc::Path_Exists(maxbrightpath))
+-	{
+-	  ifstream maxVal(maxbrightpath.c_str());
+-	  if (maxVal >> maxBrightness)
+-	    {
+-	      LOGINFO("Got max brightness %s from '%s'\n",
+-		      maxBrightness.c_str(), maxbrightpath.c_str());
+-	    }
+-	  else
+-	    {
+-	      // Something went wrong, set that to indicate error
+-	      maxBrightness = "-1";
+-	    }
+-	}
+-      if (atoi(maxBrightness.c_str()) <= 0)
+-	{
+-	  // Fallback into default
+-	  ostringstream maxVal;
+-	  maxVal << 255;
+-	  maxBrightness = maxVal.str();
+-	}
+-#endif
+-      mConst.SetValue("tw_brightness_max", maxBrightness);
+-      mPersist.SetValue("tw_brightness", maxBrightness);
+-      mPersist.SetValue("tw_brightness_pct", "100");
+-#ifdef TW_SECONDARY_BRIGHTNESS_PATH
+-      string secondfindbright = EXPAND(TW_SECONDARY_BRIGHTNESS_PATH);
+-      if (secondfindbright != "" && TWFunc::Path_Exists(secondfindbright))
+-	{
+-	  LOGINFO("Will use a second brightness file at '%s'\n",
+-		  secondfindbright.c_str());
+-	  mConst.SetValue("tw_secondary_brightness_file", secondfindbright);
+-	}
+-      else
+-	{
+-	  LOGINFO("Specified secondary brightness file '%s' not found.\n",
+-		  secondfindbright.c_str());
+-	}
+-#endif
+-#ifdef TW_DEFAULT_BRIGHTNESS
+-      int defValInt = TW_DEFAULT_BRIGHTNESS;
+-      int maxValInt = atoi(maxBrightness.c_str());
+-      // Deliberately int so the % is always a whole number
+-      int defPctInt = (((double) defValInt / maxValInt) * 100);
+-      ostringstream defPct;
+-      defPct << defPctInt;
+-      mPersist.SetValue("tw_brightness_pct", defPct.str());
+-
+-      ostringstream defVal;
+-      defVal << TW_DEFAULT_BRIGHTNESS;
+-      mPersist.SetValue("tw_brightness", defVal.str());
+-      TWFunc::Set_Brightness(defVal.str());
+-#else
+-      TWFunc::Set_Brightness(maxBrightness);
+-#endif
+-    }
++  InitializeBrightness();
+ 
+ #ifndef TW_EXCLUDE_ENCRYPTED_BACKUPS
+   mConst.SetValue("tw_include_encrypted_backup", "1");
+diff --git a/data.hpp b/data.hpp
+index 8402305..eb7c57b 100755
+--- a/data.hpp
++++ b/data.hpp
+@@ -62,6 +62,7 @@ public:
+ 	static void Vibrate(const string& varName);
+ 	static void SetBackupFolder();
+ 	static void SetDefaultValues();
++	static void InitializeBrightness();
+ 	static void Leds(bool enable);	
+ 	static void Output_Version(void); // Outputs the version to a file in the TWRP folder
+ 	static void ReadSettingsFile(void);
+diff --git a/kernel_module_loader.cpp b/kernel_module_loader.cpp
+index 49002bc..f7a7725 100644
+--- a/kernel_module_loader.cpp
++++ b/kernel_module_loader.cpp
+@@ -108,7 +108,8 @@ bool KernelModuleLoader::Stage_Post_Decrypt_Modules() {
+ 
+ 	std::vector<std::string> search_dirs = {
+ 		SYSTEM_DLKM_MODULE_DIR,
+-		VENDOR_DLKM_MODULE_DIR
++		VENDOR_DLKM_MODULE_DIR,
++		VENDOR_MODULE_DIR
+ 	};
+ 
+ 	std::string module_list;
+diff --git a/minuitwrp/events.cpp b/minuitwrp/events.cpp
+index bfb4680..721d507 100644
+--- a/minuitwrp/events.cpp
++++ b/minuitwrp/events.cpp
+@@ -23,6 +23,7 @@
+ #include <linux/input.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#include <time.h>
+ #include <unistd.h>
+ #include <stdio.h>
+ #include <string.h>
+@@ -139,9 +140,10 @@ struct ev {
+ static struct pollfd ev_fds[MAX_DEVICES];
+ static struct ev evs[MAX_DEVICES];
+ static unsigned ev_count = 0;
+-static struct timeval lastInputStat;
++static struct timespec lastInputStat;
+ static time_t lastInputMTime;
+ static int has_mouse = 0;
++static bool has_touchscreen = false;
+ static struct input_event secondary_touch_event;
+ static bool secondary_touch_pending = false;
+ 
+@@ -609,6 +611,8 @@ int ev_init(void)
+     int fd;
+ 
+     has_mouse = 0;
++    has_touchscreen = false;
++    secondary_touch_pending = false;
+ 
+ 	dir = opendir("/dev/input");
+     if(dir != 0) {
+@@ -620,12 +624,16 @@ int ev_init(void)
+             fd = openat(dirfd(dir), de->d_name, O_RDONLY);
+             if(fd < 0) continue;
+ 
+-			ev_fds[ev_count].fd = fd;
++            evs[ev_count] = {};
++            ev_fds[ev_count] = {};
++            ev_fds[ev_count].fd = fd;
+             ev_fds[ev_count].events = POLLIN;
+             evs[ev_count].fd = &ev_fds[ev_count];
+ 
+             /* Load virtualkeys if there are any */
+             vk_init(&evs[ev_count]);
++            if (strcmp(evs[ev_count].deviceName, "main_touch") == 0)
++                has_touchscreen = true;
+ 
+             evs[ev_count].mouse = !evs[ev_count].ignored &&
+                 check_mouse(fd, evs[ev_count].deviceName);
+@@ -639,7 +647,7 @@ int ev_init(void)
+     struct stat st;
+     if(stat("/dev/input", &st) >= 0)
+         lastInputMTime = st.st_mtime;
+-    gettimeofday(&lastInputStat, NULL);
++    clock_gettime(CLOCK_MONOTONIC, &lastInputStat);
+ 
+     return 0;
+ }
+@@ -647,10 +655,9 @@ int ev_init(void)
+ void ev_exit(void)
+ {
+ 	while (ev_count-- > 0) {
+-		if (evs[ev_count].vk_count) {
+-			free(evs[ev_count].vks);
+-			evs[ev_count].vk_count = 0;
+-		}
++        free(evs[ev_count].vks);
++        evs[ev_count].vks = nullptr;
++        evs[ev_count].vk_count = 0;
+ 		close(ev_fds[ev_count].fd);
+ 	}
+ 	ev_count = 0;
+@@ -1115,7 +1122,7 @@ int ev_get(struct input_event *ev, int timeout_ms)
+ {
+     int r;
+     unsigned n;
+-    struct timeval curr;
++    struct timespec curr;
+ 
+     if (secondary_touch_pending) {
+         *ev = secondary_touch_event;
+@@ -1123,12 +1130,14 @@ int ev_get(struct input_event *ev, int timeout_ms)
+         return 0;
+     }
+ 
+-    gettimeofday(&curr, NULL);
++    // Recovery can correct the wall clock after input initialization.
++    // Keep hotplug discovery running across those clock adjustments.
++    clock_gettime(CLOCK_MONOTONIC, &curr);
+     if(curr.tv_sec - lastInputStat.tv_sec >= 2)
+     {
+         struct stat st;
+-        stat("/dev/input", &st);
+-        if (st.st_mtime != lastInputMTime)
++        if (stat("/dev/input", &st) == 0 &&
++            (st.st_mtime != lastInputMTime || !has_touchscreen))
+         {
+             LOGI("Reloading input devices\n");
+             ev_exit();
+diff --git a/partitionmanager.cpp b/partitionmanager.cpp
+index d04b64a..96c118c 100755
+--- a/partitionmanager.cpp
++++ b/partitionmanager.cpp
+@@ -1056,7 +1056,14 @@ void TWPartitionManager::Decrypt_Data() {
+ #ifdef USE_FSCRYPT
+ 			std::vector<std::string> user_devices;
+ 			std::vector<bool> device_aliased;
+-			if (android::vold::fscrypt_mount_metadata_encrypted(Decrypt_Data->Actual_Block_Device, Decrypt_Data->Mount_Point, false, false, Decrypt_Data->Current_File_System, false, user_devices, device_aliased, 0, TWFunc::Path_Exists(additional_fstab) ? additional_fstab : "")) {
++			// Recovery deliberately skips the vendor fstab on this device.
++			// Metadata decryption still needs a complete fstab entry for /data,
++			// so use the recovery fstab when no vendor copy was staged.
++			const std::string decrypt_fstab =
++				TWFunc::Path_Exists(additional_fstab)
++					? additional_fstab
++					: (TWFunc::Path_Exists("/etc/recovery.fstab") ? "/etc/recovery.fstab" : "");
++			if (android::vold::fscrypt_mount_metadata_encrypted(Decrypt_Data->Actual_Block_Device, Decrypt_Data->Mount_Point, false, false, Decrypt_Data->Current_File_System, false, user_devices, device_aliased, 0, decrypt_fstab)) {
+ 				std::string crypto_blkdev = android::base::GetProperty("ro.crypto.fs_crypto_blkdev", "error");
+ 				Decrypt_Data->Decrypted_Block_Device = crypto_blkdev;
+ 				LOGINFO("Successfully decrypted metadata encrypted data partition with new block device: '%s'\n", crypto_blkdev.c_str());
+@@ -3888,8 +3895,11 @@ bool AeraSnapshotStateIdle(TWPartitionManager* manager, bool has_cows = false) {
+ 	if (!snapshots || snapshots->GetUpdateState() != android::snapshot::UpdateState::None ||
+ 		!snapshots->IsCancelUpdateSafe()) return false;
+ #ifdef AB_OTA_UPDATER
+-	const auto boot = BootControlClient::WaitForService();
+-	if (!boot) return false;
++	const auto boot = BootControlClient::TryGetService();
++	if (!boot) {
++		LOGINFO("Boot control service unavailable; snapshot cleanup status is unknown\n");
++		return false;
++	}
+ 	const auto merge = boot->getSnapshotMergeStatus();
+ 	using MergeStatus = aidl::android::hardware::boot::MergeStatus;
+ 	if (merge != MergeStatus::NONE && merge != MergeStatus::CANCELLED) return false;
+diff --git a/wlan.cpp b/wlan.cpp
+index 933a946..fdf459a 100644
+--- a/wlan.cpp
++++ b/wlan.cpp
+@@ -440,7 +440,10 @@ bool Wlan::Connect(const std::string& security, bool hidden) {
+ 
+         bool pass_ok = false;
+         if (key_mgmt == "SAE") {
+-            pass_ok = SuppCmd("SET_NETWORK 0 sae_password \"" + esc_pass + "\"");
++            std::string pmf_reply;
++            pass_ok = SuppCmd("SET_NETWORK 0 ieee80211w 2", pmf_reply) &&
++                Trim(pmf_reply) == "OK" &&
++                SuppCmd("SET_NETWORK 0 sae_password \"" + esc_pass + "\"");
+         } else {
+             pass_ok = SuppCmd("SET_NETWORK 0 psk " + (aera::wifi::IsRawPsk(pass)
+                 ? pass : "\"" + esc_pass + "\""));
+@@ -760,7 +763,10 @@ bool Wlan::ConnectSaved() {
+ 
+         bool pass_ok = false;
+         if (key_mgmt == "SAE") {
+-            pass_ok = SuppCmd("SET_NETWORK 0 sae_password \"" + esc_pass + "\"");
++            std::string pmf_reply;
++            pass_ok = SuppCmd("SET_NETWORK 0 ieee80211w 2", pmf_reply) &&
++                Trim(pmf_reply) == "OK" &&
++                SuppCmd("SET_NETWORK 0 sae_password \"" + esc_pass + "\"");
+         } else {
+             pass_ok = SuppCmd("SET_NETWORK 0 psk " + (aera::wifi::IsRawPsk(saved_pass)
+                 ? saved_pass : "\"" + esc_pass + "\""));

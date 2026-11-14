@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-DEVICE_PATH := device/meizu/m2481
+DEVICE_PATH := device/meizu/meizu21Pro
 
 # Inherit from device.mk configuration
 $(call inherit-product, $(DEVICE_PATH)/device.mk)
@@ -13,16 +13,14 @@ $(call inherit-product, $(DEVICE_PATH)/device.mk)
 PRODUCT_RELEASE_NAME := meizu21Pro
 
 ## Device identifier
-PRODUCT_DEVICE := m2481
-PRODUCT_NAME := twrp_m2481
+PRODUCT_DEVICE := meizu21Pro
+PRODUCT_NAME := twrp_meizu21Pro
 PRODUCT_BRAND := meizu
 PRODUCT_MODEL := Meizu 21Pro
 PRODUCT_MANUFACTURER := meizu
 
 # Assert
-TARGET_OTA_ASSERT_DEVICE := $(PRODUCT_RELEASE_NAME)
+TARGET_OTA_ASSERT_DEVICE := meizu21Pro,m2481
 
 # Theme
-TW_STATUS_ICONS_ALIGN := center
-TW_Y_OFFSET := 111
-TW_H_OFFSET := -111
+AERA_STATUS_ICONS_ALIGN := center

@@ -27,6 +27,7 @@ PRODUCT_TARGET_VNDK_VERSION := 34
 
 # Dynamic partitions
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
+PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
 
 # Enable Fuse Passthrough
 PRODUCT_PROPERTY_OVERRIDES += persist.sys.fuse.passthrough.enable=true
@@ -34,3 +35,14 @@ PRODUCT_PROPERTY_OVERRIDES += persist.sys.fuse.passthrough.enable=true
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \
     $(DEVICE_PATH)
+
+PRODUCT_PACKAGES += \
+    aera-browser-jail \
+    lpflash \
+    lpmake \
+    lpunpack
+
+PRODUCT_VENDOR_PROPERTIES += \
+    ro.hardware.egl=adreno
+
+$(call inherit-product, $(DEVICE_PATH)/aera_meizu21Pro.mk)

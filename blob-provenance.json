@@ -1,0 +1,268 @@
+{
+  "files": [
+    {
+      "path": "vendor/lib64/libnativewindow.so",
+      "source": "AERA-Recovery/android_device_oneplus_waffle-AERA@5610a89a115c0aa3b1e87a6f6cdab08ce001d4eb/recovery/root/vendor/lib64/libnativewindow.so",
+      "size": 68328,
+      "sha256": "b5648c532393dc29a4a8dbe0026cd3451ce26e1192868c3d2c97af80aa21654b"
+    },
+    {
+      "path": "vendor/lib64/libui.so",
+      "source": "AERA-Recovery/android_device_oneplus_waffle-AERA@5610a89a115c0aa3b1e87a6f6cdab08ce001d4eb/recovery/root/vendor/lib64/libui.so",
+      "size": 494576,
+      "sha256": "22057973344879ce68befa01778f8b2f44c2548714119a897f320009e8a21782"
+    },
+    {
+      "path": "vendor/bin/hw/vendor.qti.hardware.display.allocator-service",
+      "source": "PixelOS Meizu 21 Pro vendor/bin/hw/vendor.qti.hardware.display.allocator-service",
+      "size": 69088,
+      "sha256": "1c7cd726e82741764496d737abd324ab67405cba25b169df390d52b962759442"
+    },
+    {
+      "path": "vendor/lib64/libgrallocutils.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/libgrallocutils.so",
+      "size": 150984,
+      "sha256": "61c96d3912cb42b4c808796c26592760174ad857e7e1c90730f08b2345a2b43b"
+    },
+    {
+      "path": "vendor/lib64/libgralloctypes.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/libgralloctypes.so",
+      "size": 101680,
+      "sha256": "8dc58776d835095cebe48d27e2f3c9061764e1284586497e067cd523aa80aeba"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.mapper@4.0.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.mapper@4.0.so",
+      "size": 169520,
+      "sha256": "a86374a59a7a1e8c4da8232ef76e295f64d6ca3181a1a9530d232da5766b50c5"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.common@1.0.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.common@1.0.so",
+      "size": 35400,
+      "sha256": "33794a916e679b0253c03879b5aa11dba7a804dab5fa4e3a9c24710d7836d473"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.common@1.1.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.common@1.1.so",
+      "size": 35416,
+      "sha256": "694cab09402a027292724e5e8312d8b1ff93ac4c47ecbcb81062818b5a2edf6a"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.common@1.2.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.common@1.2.so",
+      "size": 35440,
+      "sha256": "78433e5893166d24d4483845932bbcf35652768e994d96f2f128c942c18100e4"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.common-V7-ndk.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.common-V7-ndk.so",
+      "size": 52080,
+      "sha256": "ac1628347b057a5541092195469b5b879e22dea4bdf4bcb57ff32a62840c7af6"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.common-V2-ndk.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.common-V2-ndk.so",
+      "size": 51704,
+      "sha256": "99043273a94daadafb7b9949b21c537d542c00a6bc0da231a486d3987ca8e535"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.mapper@2.0.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.mapper@2.0.so",
+      "size": 119392,
+      "sha256": "dca51752f160d7276ad497b785a89172f5693801b7c7288ba731e15911a97ebe"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.mapper@2.1.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.mapper@2.1.so",
+      "size": 119512,
+      "sha256": "139b1e950d7306c34d7ec52e1ce2fbfefb6fdf6322aa74a320e7930ae96ba28e"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.mapper@3.0.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.mapper@3.0.so",
+      "size": 136032,
+      "sha256": "b07deb5073ff9e877533f4cfa0aa747c613fab10eefcbb966be6e8d8cadf1b48"
+    },
+    {
+      "path": "vendor/lib64/libgralloccore.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/libgralloccore.so",
+      "size": 135112,
+      "sha256": "e88bb1f29cab036b580ab9c8028f30299e63c6a6a4e7aeea7b01ca70027fbd68"
+    },
+    {
+      "path": "vendor/lib64/libgralloc.qti.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/libgralloc.qti.so",
+      "size": 51856,
+      "sha256": "b990bf75552511a31dd41476f162a640b6de04a917b0fb466907387b160b543e"
+    },
+    {
+      "path": "vendor/lib64/vendor.qti.hardware.display.mapper@3.0.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/vendor.qti.hardware.display.mapper@3.0.so",
+      "size": 119776,
+      "sha256": "927d0732e15c5155e8dc58e59a37e7b9202e3e7ab12884ad73c573c9ec02eef0"
+    },
+    {
+      "path": "vendor/lib64/vendor.qti.hardware.display.mapperextensions@1.0.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/vendor.qti.hardware.display.mapperextensions@1.0.so",
+      "size": 186120,
+      "sha256": "ca7dbaa43d41eaed64a299761ea108bcc0bcf04084b734f2f440db5978b29c33"
+    },
+    {
+      "path": "vendor/lib64/vendor.qti.hardware.display.mapper@4.0.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/vendor.qti.hardware.display.mapper@4.0.so",
+      "size": 152936,
+      "sha256": "ebb2d22cfba8c8216e46533fed25a159f9d0890db681d283a1f64e01d380f1b5"
+    },
+    {
+      "path": "vendor/lib64/vendor.qti.hardware.display.mapperextensions@1.1.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/vendor.qti.hardware.display.mapperextensions@1.1.so",
+      "size": 152872,
+      "sha256": "66b3dba857da052b5b1fef6f52a31e2ae94965e37903ef0406bfc3298928f1bd"
+    },
+    {
+      "path": "vendor/lib64/vendor.qti.hardware.display.mapperextensions@1.2.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/vendor.qti.hardware.display.mapperextensions@1.2.so",
+      "size": 185792,
+      "sha256": "4ff1f9d69cabfeadfbcff0e21ba12d41750773e1100ac7e6734bfb41bd452482"
+    },
+    {
+      "path": "vendor/lib64/vendor.qti.hardware.display.mapperextensions@1.3.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/vendor.qti.hardware.display.mapperextensions@1.3.so",
+      "size": 185856,
+      "sha256": "ae3999a187e9994879d2f1f02271693c8940cc1f775b89930a5dbf2a239394fb"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.allocator-V1-ndk.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.allocator-V1-ndk.so",
+      "size": 69072,
+      "sha256": "cdc9cdee760716b62a8aa96c7b2e293ed0035c0873f7e814d09e3789edc722dd"
+    },
+    {
+      "path": "vendor/lib64/egl/libEGL_adreno.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/egl/libEGL_adreno.so",
+      "size": 48104,
+      "sha256": "1b1185841cb0897bf2f73c9d3709b44ac8ad425df870ae4651b0f37130bc9922"
+    },
+    {
+      "path": "vendor/lib64/libadreno_utils.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/libadreno_utils.so",
+      "size": 93776,
+      "sha256": "6ce1e0514fb9c7d9e5be7d5970284d1cf32ed080b13c66c5e51a49ef3ec37221"
+    },
+    {
+      "path": "vendor/lib64/libgsl.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/libgsl.so",
+      "size": 2276440,
+      "sha256": "d9e07b5509552d5d3ee62dc718f898bf914dc97bdf7919cd2fe1ed4b3bd28e73"
+    },
+    {
+      "path": "vendor/lib64/egl/libGLESv2_adreno.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/egl/libGLESv2_adreno.so",
+      "size": 4829792,
+      "sha256": "c67de2b397ef14b37a445ca791264801b94bfcc34fe62cb3c7f8d8cd19c405d0"
+    },
+    {
+      "path": "vendor/lib64/libllvm-glnext.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/libllvm-glnext.so",
+      "size": 1572136,
+      "sha256": "dc8ccbc55627619b2cede9ded53fcc5fca514fb5b5faa0359c217e1b10ee7676"
+    },
+    {
+      "path": "vendor/lib64/hw/android.hardware.graphics.mapper@4.0-impl-qti-display.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/hw/android.hardware.graphics.mapper@4.0-impl-qti-display.so",
+      "size": 117896,
+      "sha256": "af49e8169c53f05f4f96db3fa70132fdd2d01d0ee22ebcd4a4a8c3f082760dc4"
+    },
+    {
+      "path": "vendor/lib64/hw/gralloc.default.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/hw/gralloc.default.so",
+      "size": 52520,
+      "sha256": "567250d4c56fd6b7726aba732807a5fd174656f867c17c73583d2247aa7ba304"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.allocator@2.0.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.allocator@2.0.so",
+      "size": 119184,
+      "sha256": "5529226b659e2ddb0c2cd8eab61dd5aa127b189752a218b0fe89e796c1b0aefa"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.allocator@3.0.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.allocator@3.0.so",
+      "size": 119184,
+      "sha256": "cdaeacca963d0a302fbe4167c45616ce6bdc0de142f69b139653ee5e21c8ca71"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.allocator@4.0.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.allocator@4.0.so",
+      "size": 119048,
+      "sha256": "a072f50f912b2b05aa37d18c65e2794be88788344bcd2dcf5a7cf36f78300fc3"
+    },
+    {
+      "path": "vendor/lib64/android.hardware.graphics.allocator-V2-ndk.so",
+      "source": "PixelOS Meizu 21 Pro vendor/lib64/android.hardware.graphics.allocator-V2-ndk.so",
+      "size": 69152,
+      "sha256": "b0ec1bcf86f97f24602a9c1c660310f741bdb685c43622a5cb6642c8f326377e"
+    },
+    {
+      "path": "vendor/firmware/gen70900_aqe.fw",
+      "source": "PixelOS Meizu 21 Pro vendor/firmware/gen70900_aqe.fw",
+      "size": 33176,
+      "sha256": "25237c161d727b8ea92b4beb837a31651b44ea78bfc34d95672af8f346a45825"
+    },
+    {
+      "path": "vendor/firmware/gen70900_sqe.fw",
+      "source": "PixelOS Meizu 21 Pro vendor/firmware/gen70900_sqe.fw",
+      "size": 85364,
+      "sha256": "f756bafe5f69a87161c7c53385386374a791861a574c244e845baba677993842"
+    },
+    {
+      "path": "vendor/firmware/gen70900_zap.mbn",
+      "source": "PixelOS Meizu 21 Pro vendor/firmware/gen70900_zap.mbn",
+      "size": 12088,
+      "sha256": "3a24e1510da28ea92d0c1801892d2029682a499ed5776163620791805379118a"
+    },
+    {
+      "path": "vendor/firmware/gmu_gen70900.bin",
+      "source": "PixelOS Meizu 21 Pro vendor/firmware/gmu_gen70900.bin",
+      "size": 78588,
+      "sha256": "9685f62c42543befcaee68d25355e16bf55cdb0d573bddcc9f6633f59eec3f72"
+    },
+    {
+      "path": "vendor/etc/vintf/manifest/vendor.qti.hardware.display.allocator-service.xml",
+      "source": "PixelOS Meizu 21 Pro vendor/etc/vintf/manifest/vendor.qti.hardware.display.allocator-service.xml",
+      "size": 306,
+      "sha256": "3450fe247a18826c31edf172ccc48895bfba4dac507a757678ec1773806f2d65"
+    },
+    {
+      "path": "vendor/etc/vintf/manifest/android.hardware.graphics.mapper-impl-qti-display.xml",
+      "source": "PixelOS Meizu 21 Pro vendor/etc/vintf/manifest/android.hardware.graphics.mapper-impl-qti-display.xml",
+      "size": 563,
+      "sha256": "c9166f397475efb10d41df8396a6a34b9e66b187ea20e800b9135f3db7729bd9"
+    },
+    {
+      "path": "vendor/etc/wifi/kiwi_v2/WCNSS_qcom_cfg.ini",
+      "source": "PixelOS Meizu 21 Pro vendor/etc/wifi/kiwi_v2/WCNSS_qcom_cfg.ini",
+      "size": 5012,
+      "sha256": "c1e29fb46742b0ee99e2392a5abddf314417b63bbec2b2a251bf2d3651e77f5d"
+    }
+  ],
+  "platform_dependencies": [
+    "android.hardware.graphics.common-V6-ndk.so",
+    "libbase.so",
+    "libbinder.so",
+    "libc++.so",
+    "libc.so",
+    "libcutils.so",
+    "libdl.so",
+    "libdmabufheap.so",
+    "libhardware.so",
+    "libhidlbase.so",
+    "liblog.so",
+    "libm.so",
+    "libsync.so",
+    "libutils.so",
+    "libvndksupport.so",
+    "libz.so"
+  ]
+}

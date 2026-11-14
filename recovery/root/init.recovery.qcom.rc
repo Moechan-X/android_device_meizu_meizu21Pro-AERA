@@ -25,6 +25,15 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import /init.recovery.wifi.rc
+
+service aera-graphics-allocator /vendor/bin/hw/vendor.qti.hardware.display.allocator-service
+    class hal
+    user root
+    group root graphics
+    capabilities SYS_NICE
+    seclabel u:r:recovery:s0
+
 on init
     setprop prepdecrypt.setpatch true
     start vendor.boot-qti
@@ -37,6 +46,7 @@ on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
     write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
+    write /sys/module/firmware_class/parameters/path /vendor/firmware
     chmod 0660 /dev/qseecom
     chown system drmrpc /dev/qseecom
     chmod 0664 /dev/ion
@@ -46,8 +56,14 @@ on fs
     start vendor.qseecomd
     mkdir /mnt/vendor 0775 shell system
     mkdir /mnt/vendor/persist 0775 shell system
-    mkdir /tmp/persist 0775 shell system
-    mount none /tmp/persist /mnt/vendor/persist bind rec
+    mount ext4 /dev/block/bootdevice/by-name/persist /mnt/vendor/persist ro
+    mkdir /vendor/firmware/wlan 0755 root root
+    mkdir /vendor/firmware/wlan/qca_cld 0755 root root
+    mkdir /vendor/firmware/wlan/qca_cld/kiwi_v2 0755 root root
+    symlink /vendor/etc/wifi/kiwi_v2/WCNSS_qcom_cfg.ini /vendor/firmware/wlan/qca_cld/kiwi_v2/WCNSS_qcom_cfg.ini
+    # Recovery has a generated MAC file at the parent qca_cld path.  The
+    # kiwi_v2 driver path must resolve to that file when persist is absent.
+    symlink /vendor/firmware/wlan/qca_cld/wlan_mac.bin /vendor/firmware/wlan/qca_cld/kiwi_v2/wlan_mac.bin
     install_keyring
 
 on boot
@@ -61,7 +77,7 @@ on property:vendor.sys.listeners.registered=true
 on property:twrp.modules.loaded=true
     # KeyMint stays down until this has pointed the version properties at the
     # installed system, so start it as early as the mapper nodes allow.
-    start start_crypto_services
+    start prepdecrypt.vendor
     # Mount firmware
     mkdir /firmware
     mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro
@@ -75,3 +91,9 @@ on property:twrp.modules.loaded=true
     start vendor.qti.vibrator
     umount /vendor
     symlink /firmware /vendor/firmware_mnt
+
+# vendor_init cannot register a trigger for the unexported crypto.ready
+# property. Recovery init owns this trigger so KeyMint starts after
+# prepdecrypt has installed the target system and vendor properties.
+on property:crypto.ready=1
+    start vendor.keymint-qti

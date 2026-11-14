@@ -6,6 +6,6 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifeq ($(TARGET_DEVICE),m2481)
+ifeq ($(TARGET_DEVICE),meizu21Pro)
 include $(call all-subdir-makefiles,$(LOCAL_PATH))
 endif

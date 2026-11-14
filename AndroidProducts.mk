@@ -5,4 +5,8 @@
 #
 
 PRODUCT_MAKEFILES := \
-	$(LOCAL_DIR)/twrp_m2481.mk
+	$(LOCAL_DIR)/twrp_meizu21Pro.mk
+
+COMMON_LUNCH_CHOICES := \
+    twrp_meizu21Pro-eng \
+    twrp_meizu21Pro-userdebug

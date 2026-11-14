@@ -1,0 +1,21 @@
+diff --git a/src/draw/sw/blend/lv_draw_sw_blend.c b/src/draw/sw/blend/lv_draw_sw_blend.c
+index 54a7294..9e47686 100644
+--- a/src/draw/sw/blend/lv_draw_sw_blend.c
++++ b/src/draw/sw/blend/lv_draw_sw_blend.c
+@@ -79,8 +79,15 @@ void lv_draw_sw_blend(lv_draw_task_t * t, const lv_draw_sw_blend_dsc_t * blend_d
+     lv_area_t blend_area;
+     if(!lv_area_intersect(&blend_area, blend_dsc->blend_area, &t->clip_area)) return;
+ 
+-    LV_PROFILER_DRAW_BEGIN;
+     lv_layer_t * layer = t->target_layer;
++    /* A task's clip can extend beyond a smaller destination layer. Limit the
++     * blend to allocated pixels before calculating the destination address. */
++    lv_area_t buffer_area = layer->buf_area;
++    buffer_area.x2 = LV_MIN(buffer_area.x2, buffer_area.x1 + layer->draw_buf->header.w - 1);
++    buffer_area.y2 = LV_MIN(buffer_area.y2, buffer_area.y1 + layer->draw_buf->header.h - 1);
++    if(!lv_area_intersect(&blend_area, &blend_area, &buffer_area)) return;
++
++    LV_PROFILER_DRAW_BEGIN;
+     uint32_t layer_stride_byte = layer->draw_buf->header.stride;
+ 
+     lv_draw_sw_blend_handler_t handler = lv_draw_sw_get_blend_handler(layer->color_format);
