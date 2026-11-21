@@ -149,9 +149,10 @@ jobs:
         export CCACHE_MAXSIZE=5G
         export USE_CCACHE=1
         lunch twrp_${{ env.LUNCH_TARGET }}-bp2a-eng
+        export LC_ALL=C
         (while true; do echo `date +%T` "Building AERA..."; free -h; sleep 30; done) &
         TIP_PID=$!
-        m ${{ github.event.inputs.BUILD_PARTITION }}image
+        m -j3 ${{ github.event.inputs.BUILD_PARTITION }}image
         cp out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_PARTITION }}.img out/target/product/${{ github.event.inputs.DEVICE_NAME }}/AERA-Unofficial-${{ env.RELEASE_NAME }}-${{ env.BUILD_DATE }}.img
         kill $TIP_PID && exit 0
 
